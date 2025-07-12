@@ -6,10 +6,11 @@
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
     <changeSet id="003" author="anton">
-        <loadData file="/db/data/users-hashed.csv" tableName="user" separator="," encoding="UTF-8">
+        <loadData file="/db/data/users-hashed-v3.csv" tableName="users" separator="," encoding="UTF-8">
             <column name="id" type="NUMERIC"/>
             <column name="name" type="STRING"/>
             <column name="date_of_birth" type="DATE"/>
+            <column name="login" type="STRING"/>
             <column name="password" type="STRING"/>
         </loadData>
 

@@ -7,12 +7,15 @@
 
     <changeSet id="001" author="anton">
 
-        <createTable tableName="user">
+        <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(500)"/>
             <column name="date_of_birth" type="DATE"/>
+            <column name="login" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
             <column name="password" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
@@ -23,7 +26,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" unique="true" foreignKeyName="fk_account_user" references="user(id)"/>
+                <constraints nullable="false" unique="true" foreignKeyName="fk_account_user" references="users(id)"/>
             </column>
             <column name="balance" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
@@ -35,7 +38,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_email_user" references="user(id)"/>
+                <constraints nullable="false" foreignKeyName="fk_email_user" references="users(id)"/>
             </column>
             <column name="email" type="VARCHAR(200)">
                 <constraints nullable="false" unique="true"/>
@@ -47,7 +50,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_phone_user" references="user(id)"/>
+                <constraints nullable="false" foreignKeyName="fk_phone_user" references="users(id)"/>
             </column>
             <column name="phone" type="VARCHAR(13)">
                 <constraints nullable="false" unique="true"/>
@@ -60,10 +63,10 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="from_user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_tx_from_user" references="user(id)"/>
+                <constraints nullable="false" foreignKeyName="fk_tx_from_user" references="users(id)"/>
             </column>
             <column name="to_user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_tx_to_user" references="user(id)"/>
+                <constraints nullable="false" foreignKeyName="fk_tx_to_user" references="users(id)"/>
             </column>
             <column name="amount" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
