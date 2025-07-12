@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="001" author="anton">
+
+        <createTable tableName="user">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(500)"/>
+            <column name="date_of_birth" type="DATE"/>
+            <column name="password" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="account">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true" foreignKeyName="fk_account_user" references="user(id)"/>
+            </column>
+            <column name="balance" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="email_data">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_email_user" references="user(id)"/>
+            </column>
+            <column name="email" type="VARCHAR(200)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="phone_data">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_phone_user" references="user(id)"/>
+            </column>
+            <column name="phone" type="VARCHAR(13)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <!-- TRANSACTION -->
+        <createTable tableName="transaction">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="from_user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_tx_from_user" references="user(id)"/>
+            </column>
+            <column name="to_user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_tx_to_user" references="user(id)"/>
+            </column>
+            <column name="amount" type="DECIMAL(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
