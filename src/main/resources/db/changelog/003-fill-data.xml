@@ -32,4 +32,12 @@
             <column name="phone" type="STRING"/>
         </loadData>
     </changeSet>
+
+    <changeSet id="003a" author="anton" runOnChange="true" runAlways="true">
+        <sql>SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));</sql>
+        <sql>SELECT setval('account_id_seq', (SELECT MAX(id) FROM account));</sql>
+        <sql>SELECT setval('email_data_id_seq', (SELECT MAX(id) FROM email_data));</sql>
+        <sql>SELECT setval('phone_data_id_seq', (SELECT MAX(id) FROM phone_data));</sql>
+    </changeSet>
+
 </databaseChangeLog>

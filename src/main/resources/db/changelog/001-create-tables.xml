@@ -8,7 +8,7 @@
     <changeSet id="001" author="anton">
 
         <createTable tableName="users">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(500)"/>
@@ -19,10 +19,11 @@
             <column name="password" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
 
         <createTable tableName="account">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
@@ -31,22 +32,24 @@
             <column name="balance" type="DECIMAL(19,2)">
                 <constraints nullable="false"/>
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
 
         <createTable tableName="email_data">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_email_user" references="users(id)"/>
             </column>
             <column name="email" type="VARCHAR(200)">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="false"/>
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
 
         <createTable tableName="phone_data">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
@@ -55,11 +58,12 @@
             <column name="phone" type="VARCHAR(13)">
                 <constraints nullable="false" unique="true"/>
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
 
         <!-- TRANSACTION -->
         <createTable tableName="transaction">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="from_user_id" type="BIGINT">
@@ -77,6 +81,8 @@
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
         </createTable>
+
     </changeSet>
 </databaseChangeLog>

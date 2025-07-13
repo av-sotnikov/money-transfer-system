@@ -18,12 +18,21 @@
             <column name="login"/>
         </createIndex>
 
-        <createIndex indexName="idx_email_data_email" tableName="email_data">
+        <createIndex indexName="uniq_email_is_active" tableName="email_data" unique="true">
             <column name="email"/>
+            <column name="is_active"/>
+        </createIndex>
+
+        <createIndex indexName="idx_email_data_user_id" tableName="email_data">
+            <column name="user_id"/>
         </createIndex>
 
         <createIndex indexName="idx_phone_data_phone" tableName="phone_data">
             <column name="phone"/>
+        </createIndex>
+
+        <createIndex indexName="idx_phone_data_user_id" tableName="phone_data">
+            <column name="user_id"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>

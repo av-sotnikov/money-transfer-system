@@ -2,6 +2,7 @@ package com.custom.payment.security.jwt.filter;
 
 import com.custom.payment.security.jwt.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         var uri = request.getRequestURI();
 
@@ -46,23 +47,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+
         var token = extractTokenFromRequest(request);
         if (token != null && jwtTokenService.validateToken(token)) {
-            Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, List.of());
+            Long userId = jwtTokenService.getUserIdFromToken(token);
+            if (userId == null) {
+                throw new JwtException("user_id missing in token");
+            }
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> body = new HashMap<>();
-            body.put("error", "Invalid token");
-            body.put("status", 401);
-            body.put("timestamp", LocalDateTime.now().toString());
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write(mapper.writeValueAsString(body));
+            sendUnauthorized(response, "Invalid or missing token");
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
+        if (response.isCommitted()) {
+            return;
+        } //
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", message);
+        body.put("status", 401);
+        body.put("timestamp", LocalDateTime.now().toString());
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write(mapper.writeValueAsString(body));
     }
 
     private String extractTokenFromRequest(HttpServletRequest request) {

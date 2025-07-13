@@ -1,7 +1,7 @@
 package com.custom.payment.security.jwt;
 
 
-import com.custom.payment.db.model.User;
+import com.custom.payment.db.projection.UserAuthProjection;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -24,7 +24,12 @@ public class JwtTokenService {
         this.accessTokenSecretKey = Keys.hmacShaKeyFor(accessTokenSecretKey.getBytes());
     }
 
-    public String getGenerateAccessToken(User user) {
+    public String getGenerateAccessToken(UserAuthProjection user) {
+
+        if (user == null) {
+            throw new IllegalArgumentException("User not found for token generation");
+        }
+
         return Jwts.builder()
                 .subject(user.getLogin())
                 .claim("user_id", user.getId())
@@ -37,6 +42,11 @@ public class JwtTokenService {
     public boolean validateToken(String token) {
         return validateSign(token)
                 && !isTokenExpired(token);
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get("user_id", Long.class);
     }
 
     private Claims extractClaims(String token) {
