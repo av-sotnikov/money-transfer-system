@@ -1,5 +1,7 @@
 package com.custom.payment.security;
 
+import com.custom.payment.audit.AuditEvent;
+import com.custom.payment.audit.Auditable;
 import com.custom.payment.db.repository.UserRepository;
 import com.custom.payment.security.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
 
+    @Auditable(AuditEvent.LOGIN_ACTION)
     public String login(String username, String password) {
         var user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));

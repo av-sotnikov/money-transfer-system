@@ -1,5 +1,7 @@
 package com.custom.payment.service;
 
+import com.custom.payment.audit.AuditEvent;
+import com.custom.payment.audit.Auditable;
 import com.custom.payment.db.model.EmailData;
 import com.custom.payment.db.model.User;
 import com.custom.payment.db.repository.EmailRepository;
@@ -22,6 +24,7 @@ public class EmailService {
     private final UserRepository userRepository;
     private final EmailMapper emailMapper;
 
+    @Auditable(AuditEvent.USER_EMAIL_CREATED)
     public EmailDto addEmail(Long userId, String email) {
         // Проверка: активный такой email уже есть?
         if (emailRepository.existsByEmailAndIsActiveTrue(email)) {
@@ -70,7 +73,7 @@ public class EmailService {
         return emailMapper.toDto(emailRepository.save(newEmailData));
     }
 
-
+    @Auditable(AuditEvent.USER_EMAIL_CHANGED)
     public EmailDto changeEmailV2(Long userId, Long emailId, String newEmail) throws AccessDeniedException {
         EmailData currentEmail = emailRepository.findByIdAndIsActiveTrue(emailId)
                 .orElseThrow(() -> new EntityNotFoundException("Active email not found"));
@@ -106,6 +109,7 @@ public class EmailService {
     }
 
 
+    @Auditable(AuditEvent.USER_EMAIL_DEACTIVATED)
     public EmailDto deleteEmail(Long userId, Long emailId) throws AccessDeniedException {
         int activeEmailCount = emailRepository.countActiveByUserId(userId);
         if (activeEmailCount <= 1) {
