@@ -1,6 +1,7 @@
 package com.custom.payment.service;
 
 import com.custom.payment.db.model.User;
+import com.custom.payment.db.projection.CommonUserProjection;
 import com.custom.payment.db.repository.UserRepository;
 import com.custom.payment.dto.UserDetailsDto;
 import com.custom.payment.dto.UserSummaryDto;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +44,9 @@ public class UserService {
         User user = userRepository.findWithAllRelationsById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return userMapper.toDto(user);
+    }
+
+    public List<CommonUserProjection> getUsersFiltered(LocalDate dateOfBirth) {
+        return userRepository.findByDateOfBirthAfter(dateOfBirth);
     }
 }

@@ -19,6 +19,5 @@ public class AuthController {
     public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         String token = authService.login(loginRequest.getUsername(), loginRequest.getPassword());
         return ResponseEntity.ok(new TokenResponse(token));
-
     }
 }

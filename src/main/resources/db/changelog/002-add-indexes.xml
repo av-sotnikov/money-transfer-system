@@ -18,6 +18,14 @@
             <column name="login"/>
         </createIndex>
 
+        <createIndex indexName="idx_account_user_id" tableName="account">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_account_last_accrual" tableName="account">
+            <column name="last_accrual_time"/>
+        </createIndex>
+
         <createIndex indexName="uniq_email_is_active" tableName="email_data" unique="true">
             <column name="email"/>
             <column name="is_active"/>
