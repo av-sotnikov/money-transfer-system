@@ -46,6 +46,12 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    /**
+     * Возврат списка пользователей отфильтрованых по дате больше переданной
+     *
+     * @param dateOfBirth
+     * @return CommonUserProjection
+     */
     public List<CommonUserProjection> getUsersFiltered(LocalDate dateOfBirth) {
         return userRepository.findByDateOfBirthAfter(dateOfBirth);
     }

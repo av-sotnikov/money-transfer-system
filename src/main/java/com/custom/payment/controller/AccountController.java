@@ -4,6 +4,7 @@ import com.custom.payment.dto.TransferRequest;
 import com.custom.payment.security.util.AuthUtils;
 import com.custom.payment.service.BalanceService;
 import com.custom.payment.service.TransferService;
+import com.custom.payment.validator.TransferRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 
 @RestController
@@ -22,6 +24,7 @@ public class AccountController {
 
     private final BalanceService balanceService;
     private final TransferService transferService;
+    private final TransferRequestValidator transferRequestValidator;
 
     /**
      * Получить текущий баланс пользователя (из Redis или БД)
@@ -39,9 +42,10 @@ public class AccountController {
     @PostMapping("/transfer")
     public ResponseEntity<String> transfer(
             @AuthenticationPrincipal Object principal,
-            @RequestBody TransferRequest request
-    ) {
+            @Valid @RequestBody TransferRequest request
+    ) throws InterruptedException {
         Long fromUserId = AuthUtils.extractUserId(principal);
+        transferRequestValidator.validate(fromUserId, request);
         transferService.transfer(fromUserId, request.getToUserId(), request.getAmount());
         return ResponseEntity.ok("Transfer successful");
     }

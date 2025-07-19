@@ -26,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findWithAllRelationsById(@Param("id") Long id);
 
     List<CommonUserProjection> findByDateOfBirthAfter(LocalDate dateOfBirth);
+
+    //For TestContainers
+    Optional<User> findUserByLogin(String login);
 }

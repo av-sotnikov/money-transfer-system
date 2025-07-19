@@ -6,6 +6,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 public class PaymentAuditService {
@@ -28,5 +31,10 @@ public class PaymentAuditService {
             log.error("❗ AUDIT ERROR: Action={}, Username={}, Unexpected={}", description, username, ex.getMessage(), ex);
             throw ex;
         }
+    }
+
+    public void logTransfer(Long fromUserId, Long toUserId, BigDecimal amount, LocalDateTime timestamp) {
+        log.info("TRANSFER | fromUserId={}, toUserId={}, amount={}, time={}",
+                fromUserId, toUserId, amount, timestamp);
     }
 }
