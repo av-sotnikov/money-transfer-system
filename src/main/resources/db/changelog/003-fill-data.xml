@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="003" author="anton">
+        <loadData file="/db/data/users.csv" tableName="users" separator="," encoding="UTF-8">
+            <column name="id" type="NUMERIC"/>
+            <column name="name" type="STRING"/>
+            <column name="date_of_birth" type="DATE"/>
+            <column name="login" type="STRING"/>
+            <column name="password" type="STRING"/>
+        </loadData>
+
+        <loadData file="db/data/accounts.csv" tableName="account" separator="," encoding="UTF-8">
+            <column name="id" type="NUMERIC"/>
+            <column name="user_id" type="NUMERIC"/>
+            <column name="initial_deposit" type="NUMERIC"/>
+            <column name="balance" type="NUMERIC"/>
+            <column name="is_active" type="BOOLEAN"/>
+            <column name="last_accrual_time" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </loadData>
+        <loadData file="/db/data/emails.csv" tableName="email_data" separator="," encoding="UTF-8">
+            <column name="id" type="NUMERIC"/>
+            <column name="user_id" type="NUMERIC"/>
+            <column name="email" type="STRING"/>
+        </loadData>
+
+        <loadData file="/db/data/phones.csv" tableName="phone_data" separator="," encoding="UTF-8">
+            <column name="id" type="NUMERIC"/>
+            <column name="user_id" type="NUMERIC"/>
+            <column name="phone" type="STRING"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="003a" author="anton" runOnChange="true" runAlways="true">
+        <sql>SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));</sql>
+        <sql>SELECT setval('account_id_seq', (SELECT MAX(id) FROM account));</sql>
+        <sql>SELECT setval('email_data_id_seq', (SELECT MAX(id) FROM email_data));</sql>
+        <sql>SELECT setval('phone_data_id_seq', (SELECT MAX(id) FROM phone_data));</sql>
+    </changeSet>
+
+</databaseChangeLog>

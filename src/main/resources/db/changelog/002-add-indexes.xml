@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="002" author="anton">
+        <createIndex indexName="idx_user_name" tableName="users">
+            <column name="name"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_dob" tableName="users">
+            <column name="date_of_birth"/>
+        </createIndex>
+
+        <createIndex indexName="idx_user_login" tableName="users">
+            <column name="login"/>
+        </createIndex>
+
+        <createIndex indexName="idx_account_user_id" tableName="account">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_account_last_accrual" tableName="account">
+            <column name="last_accrual_time"/>
+        </createIndex>
+
+        <createIndex indexName="uniq_email_is_active" tableName="email_data" unique="true">
+            <column name="email"/>
+            <column name="is_active"/>
+        </createIndex>
+
+        <createIndex indexName="idx_email_data_user_id" tableName="email_data">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_phone_data_phone" tableName="phone_data">
+            <column name="phone"/>
+        </createIndex>
+
+        <createIndex indexName="idx_phone_data_user_id" tableName="phone_data">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
