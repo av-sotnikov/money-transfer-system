@@ -13,6 +13,8 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -60,9 +62,6 @@ public class TransferService {
             BigDecimal newFrom = fromBalance.subtract(amount);
             BigDecimal newTo = toBalance.add(amount);
 
-            redisService.setBalance(fromUserId, newFrom);
-            redisService.setBalance(toUserId, newTo);
-
             LocalDateTime now = LocalDateTime.now();
             accountRepository.updateBalance(fromUserId, newFrom, now);
             accountRepository.updateBalance(toUserId, newTo, now);
@@ -70,8 +69,22 @@ public class TransferService {
             transactionRepository.save(Transaction.ofTransfer(
                     fromUserId, toUserId, amount, TransactionStatus.SUCCESS));
 
-            paymentAuditService.logTransfer(fromUserId, toUserId, amount, now);
-
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            redisService.setBalance(fromUserId, newFrom);
+                            redisService.setLastAccrual(fromUserId, now);
+                            paymentAuditService.logTransfer(fromUserId, toUserId, amount, now);
+                        } catch (Exception e) {
+                            log.error("Failed to sync Redis or audit after commit", e);
+                        }
+                    }
+                });
+            } else {
+                log.warn("⚠ Redis sync skipped: Transaction synchronization is not active");
+            }
         } finally {
             if (locked) {
                 try {

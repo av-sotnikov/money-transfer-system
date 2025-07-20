@@ -25,12 +25,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenService jwtTokenService;
 
     private static final List<String> WHITELIST = List.of(
-            "/api/v1/login",
             "/login",
-            "/api/v1/actuator/prometheus",
-            "/api/v1/v3/api-docs",
-            "/api/v1/swagger-ui",
-            "/api/v1/swagger-ui/"
+            "/api/v1/login",
+            "/swagger-ui",
+            "/swagger-ui/",
+            "/swagger-ui.html",
+            "/swagger-ui/index.html",
+            "/v3/api-docs",
+            "/v3/api-docs/",
+            "/v3/api-docs.yaml"
     );
 
     public JwtAuthenticationFilter(JwtTokenService jwtTokenService) {

@@ -5,6 +5,9 @@ import com.custom.payment.security.util.AuthUtils;
 import com.custom.payment.service.BalanceService;
 import com.custom.payment.service.TransferService;
 import com.custom.payment.validator.TransferRequestValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +23,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 public class AccountController {
 
     private final BalanceService balanceService;
@@ -29,6 +33,7 @@ public class AccountController {
     /**
      * Получить текущий баланс пользователя (из Redis или БД)
      */
+    @Operation(summary = "Запрос актуального баланса счета", description = "Возвращает сумму")
     @GetMapping("/balance")
     public ResponseEntity<BigDecimal> getBalance(@AuthenticationPrincipal Object principal) {
         Long userId = AuthUtils.extractUserId(principal);
@@ -40,8 +45,9 @@ public class AccountController {
      * Выполнить перевод средств между пользователями
      */
     @PostMapping("/transfer")
+    @Operation(summary = "Выполнить перевод другому клиенту", description = "Осуществляет проводку")
     public ResponseEntity<String> transfer(
-            @AuthenticationPrincipal Object principal,
+            @Parameter(hidden = true) @AuthenticationPrincipal Object principal,
             @Valid @RequestBody TransferRequest request
     ) throws InterruptedException {
         Long fromUserId = AuthUtils.extractUserId(principal);

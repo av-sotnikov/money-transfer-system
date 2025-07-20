@@ -34,7 +34,7 @@ public class PaymentAuditService {
     }
 
     public void logTransfer(Long fromUserId, Long toUserId, BigDecimal amount, LocalDateTime timestamp) {
-        log.info("TRANSFER | fromUserId={}, toUserId={}, amount={}, time={}",
+        log.info("✅ TRANSFER: | fromUserId={}, toUserId={}, amount={}, time={}",
                 fromUserId, toUserId, amount, timestamp);
     }
 }

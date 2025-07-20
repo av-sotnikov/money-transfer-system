@@ -7,10 +7,13 @@ import com.custom.payment.db.repository.AccountRepository;
 import com.custom.payment.db.repository.TransactionRepository;
 import com.custom.payment.redis.service.AccountRedisService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BalanceService {
 
     private final AccountRedisService redisService;
@@ -75,17 +79,30 @@ public class BalanceService {
             }
 
             if (updated.compareTo(balance) > 0) {
-                redisService.setBalance(userId, updated);
-                redisService.setLastAccrual(userId, updatedAccrual);
                 accountRepository.updateBalance(userId, updated, updatedAccrual);
-
                 transactionRepository.save(Transaction.ofAccrual(
                         userId,
                         updated.subtract(balance),
                         TransactionStatus.SUCCESS
                 ));
-            }
 
+                BigDecimal finalUpdated = updated;
+                LocalDateTime finalUpdatedAccrual = updatedAccrual;
+                BigDecimal finalAccrualAmount = updated.subtract(balance);
+
+                if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            redisService.setBalance(userId, finalUpdated);
+                            redisService.setLastAccrual(userId, finalUpdatedAccrual);
+                            log.info("✅ ACCRUAL: | userId={}, amount={}, time={}", userId, finalAccrualAmount, LocalDateTime.now());
+                        }
+                    });
+                } else {
+                    log.warn("⚠️ Transaction synchronization is not active — skipping Redis sync");
+                }
+            }
             return updated.setScale(2, RoundingMode.HALF_UP);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

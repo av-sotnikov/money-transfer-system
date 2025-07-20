@@ -54,27 +54,8 @@ public class EmailService {
         return emailMapper.toDtoList(emails);
     }
 
-    public EmailDto changeEmail(Long userId, Long emailId, String newEmail) throws AccessDeniedException {
-        if (emailRepository.existsByEmailAndIsActiveTrue(newEmail)) {
-            throw new IllegalArgumentException("Email is already in use");
-        }
-
-        EmailData currentEmail = emailRepository.findByIdAndIsActiveTrue(emailId)
-                .orElseThrow(() -> new EntityNotFoundException("Active email not found"));
-
-        if (!currentEmail.getUser().getId().equals(userId)) {
-            throw new AccessDeniedException("Access denied");
-        }
-
-        currentEmail.setIsActive(false);
-        emailRepository.save(currentEmail);
-
-        EmailData newEmailData = emailMapper.copyWithNewEmail(currentEmail, newEmail);
-        return emailMapper.toDto(emailRepository.save(newEmailData));
-    }
-
     @Auditable(AuditEvent.USER_EMAIL_CHANGED)
-    public EmailDto changeEmailV2(Long userId, Long emailId, String newEmail) throws AccessDeniedException {
+    public EmailDto changeEmail(Long userId, Long emailId, String newEmail) throws AccessDeniedException {
         EmailData currentEmail = emailRepository.findByIdAndIsActiveTrue(emailId)
                 .orElseThrow(() -> new EntityNotFoundException("Active email not found"));
 

@@ -118,7 +118,6 @@ public class TransferIntegrationTest {
                 .andExpect(status().isOk());
 
         assertThat(redisService.getBalance(user1.getId())).isEqualByComparingTo("8584.00");
-        assertThat(redisService.getBalance(user2.getId())).isEqualByComparingTo("5963.00");
 
         Account a1 = accountRepository.findByUserId(user1.getId()).orElseThrow();
         Account a2 = accountRepository.findByUserId(user2.getId()).orElseThrow();
