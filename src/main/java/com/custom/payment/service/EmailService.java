@@ -10,6 +10,7 @@ import com.custom.payment.dto.EmailDto;
 import com.custom.payment.mapper.EmailMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.nio.file.AccessDeniedException;
@@ -24,14 +25,13 @@ public class EmailService {
     private final UserRepository userRepository;
     private final EmailMapper emailMapper;
 
+    @Transactional
     @Auditable(AuditEvent.USER_EMAIL_CREATED)
     public EmailDto addEmail(Long userId, String email) {
-        // Проверка: активный такой email уже есть?
         if (emailRepository.existsByEmailAndIsActiveTrue(email)) {
             throw new IllegalArgumentException("Email already in use");
         }
 
-        // Проверка: есть ли удалённый (is_active = false)?
         Optional<EmailData> inactive = emailRepository.findByUserIdAndEmailAndIsActiveFalse(userId, email);
         if (inactive.isPresent()) {
             EmailData restored = inactive.get();
@@ -39,7 +39,8 @@ public class EmailService {
             return emailMapper.toDto(emailRepository.save(restored));
         }
 
-        // Если вообще нет — создаём новую запись
+        // User уже аутентифицирован, и его userId гарантированно существует (из JWT),
+        // поэтому не загружаем сущность из базы.
         var user = new User();
         user.setId(userId);
         EmailData emailData = new EmailData();
@@ -54,6 +55,7 @@ public class EmailService {
         return emailMapper.toDtoList(emails);
     }
 
+    @Transactional
     @Auditable(AuditEvent.USER_EMAIL_CHANGED)
     public EmailDto changeEmail(Long userId, Long emailId, String newEmail) throws AccessDeniedException {
         EmailData currentEmail = emailRepository.findByIdAndIsActiveTrue(emailId)
@@ -67,11 +69,9 @@ public class EmailService {
             throw new IllegalArgumentException("New email is same as current");
         }
 
-        // ✅ Деактивируем старую запись
         currentEmail.setIsActive(false);
         emailRepository.save(currentEmail);
 
-        // ✅ Ищем старую запись с таким email
         Optional<EmailData> oldInactive = emailRepository.findByUserIdAndEmailAndIsActiveFalse(userId, newEmail);
         if (oldInactive.isPresent()) {
             EmailData toRestore = oldInactive.get();
@@ -80,7 +80,6 @@ public class EmailService {
 
         }
 
-        // ✅ Если такой не было — создаём новую
         if (emailRepository.existsByEmailAndIsActiveTrue(newEmail)) {
             throw new IllegalArgumentException("Email already taken");
         }
@@ -90,6 +89,7 @@ public class EmailService {
     }
 
 
+    @Transactional
     @Auditable(AuditEvent.USER_EMAIL_DEACTIVATED)
     public EmailDto deleteEmail(Long userId, Long emailId) throws AccessDeniedException {
         int activeEmailCount = emailRepository.countActiveByUserId(userId);
